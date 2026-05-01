@@ -19,11 +19,14 @@ class Runner:
         self.config.update(args.config_path)
     
     def init_torch(self):
-        os.environ['CUDA_VISIBLE_DEVICES'] = self.config.gpu
-        # device_num = self.config.main_device
-        device_num = 0
-        torch.cuda.set_device(device_num)
-        self.device = torch.device(f'cuda:{device_num}')
+        # os.environ['CUDA_VISIBLE_DEVICES'] = self.config.gpu
+        # # device_num = self.config.main_device
+        # device_num = 0
+        # torch.cuda.set_device(device_num)
+        # self.device = torch.device(f'cuda:{device_num}')
+        # torch.set_num_threads(3)
+
+        self.device = torch.device('cpu')
         torch.set_num_threads(3)
         # torch.multiprocessing.set_start_method('spawn')
         # torch.set_default_tensor_type('torch.cuda.FloatTensor')

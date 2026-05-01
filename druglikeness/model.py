@@ -5,10 +5,14 @@ import torch
 import torch.nn as nn
 import logging
 import torch.nn.functional as F
+import os 
 
 logger = logging.getLogger('utils')
 
-pretrained_path = 'weights/chemberta'
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+pretrained_path = os.path.join(base_dir, 'weights', 'chemberta')
+
+# pretrained_path = 'weights/chemberta'
 
 dln_activation_dict = {'linear': lambda x: x,
                        'tanh': torch.tanh,
@@ -91,7 +95,7 @@ def focal_loss(y_pred, y_real, alpha=0.25, gamma=2.0):
 
 class GeneralDL(DruglikenessModel):
     def __init__(self, config):
-        config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_path)
+        config_dict, unused_kwargs = PretrainedConfig.get_config_dict(pretrained_path, local_files_only = True)
         roberta_config = RobertaConfig.from_dict(config_dict)
         super().__init__(roberta_config)
 
@@ -121,8 +125,9 @@ class GeneralDL(DruglikenessModel):
         x = self.dln_activation_fn(raw_mt_logits)
         raw_dln_logits = self.druglikeness_head(x)
 
-        mt_logits = torch.full(target.shape, torch.nan, device='cuda:0')
-        dln_logits = torch.full((target.shape[0], 2), torch.nan, device='cuda:0')
+        # Changing from cude:0 to cpu 
+        mt_logits = torch.full(target.shape, torch.nan, device='cpu')
+        dln_logits = torch.full((target.shape[0], 2), torch.nan, device='cpu')
         i = 0
         for j, subset_idx in enumerate(subset):
             if subset_idx in self.pair_subsets:
@@ -183,7 +188,8 @@ class SpecDL(DruglikenessModel):
         sequence_output = outputs[0]
         raw_logits = self.classifier(sequence_output)
         
-        logits = torch.full(target.shape, torch.nan, device='cuda:0')
+        # Changing device from cude:0 to cpu 
+        logits = torch.full(target.shape, torch.nan, device='cpu')
         i = 0
         for j, subset_idx in enumerate(subset):
             if subset_idx in self.pair_subsets:

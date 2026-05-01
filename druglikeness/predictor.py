@@ -48,7 +48,8 @@ class TestRunner(utils.Runner):
         model_dir = config.model_dir      
 
         final_pred = np.zeros((len(self.df),), dtype=float)
-        num_folds = 5
+        # Trying with only 1 num fold to see difference and if process is faster
+        num_folds = 1
         for i in range(num_folds):
             model_path = f'{model_dir}/model_{i}.pth'
             self.logger.info(f'Start predicting with model:{model_path}')
